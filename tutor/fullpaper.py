@@ -362,7 +362,7 @@ def _opt_line(choices):
 def student_lines(items):
     L = [("AMC-buddy Full Mock  -  Upper Primary (Year 6)", "F2", 16, 0, 0),
          ("Student Paper", "F2", 12, 0, 8),
-         ("30 questions   -   60 minutes   -   no calculator   -   diagrams are not drawn to scale",
+         ("30 questions   -   60 minutes   -   calculators allowed (AMC Primary rule)   -   diagrams are not drawn to scale",
           "F1", 9.5, 0, 5),
          ("Q1-25 multiple choice (mark one letter)   -   Q26-30 write an integer from 0 to 999",
           "F1", 9.5, 0, 3),
