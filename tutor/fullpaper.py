@@ -21,11 +21,8 @@ import argparse
 import datetime
 import os
 import random
-from math import comb, lcm
 
-from tutor import generate, paper
-
-TAIL_ANCHORS = [(2024, 26), (2024, 27), (2024, 28), (2024, 29), (2013, 30)]  # marks 6..10
+from tutor import generate, paper, verify
 
 
 # --------------------------------------------------------------- MC helper
@@ -230,56 +227,90 @@ MEDIUM = [m_area_cut, m_ratio, m_avg, m_packs, m_percent, m_two_digit,
           m_consec, m_speed, m_buy, m_next_multiple, m_rule, m_square_area]
 
 
-# --------------------------------------------------------------- HARD MC (5 marks)
-def h_digitsum(rng):
-    s = rng.choice([4, 5, 6])
-    ans = sum(1 for n in range(100, 1000) if sum(map(int, str(n))) == s)
-    return {"stem": f"How many three-digit numbers have digits that add up to {s}?", "answer": ans,
-            "distractors": [ans + 3, ans - 3, ans + 6], "method": f"Count systematically by the hundreds digit: {ans}.",
-            "mech": "digit counting"}
+# --------------------------------------------------------------- HARD (verified, pushed)
+# Every hard question is built straight from a real mechanism solver: the answer is
+# COMPUTED and checked unique; the stem is rendered by generate.STEMS (same wording engine
+# as the verified twins). AMC integer answers are 0-999, so hardness comes from STRUCTURE
+# (more constraints, longer chains, bigger search) -- never from inflating the numbers.
+TYPE_MECH = {"digit_extremes": "M1", "constrained_number": "M2", "op_order": "M3",
+             "fraction_remainder": "M4", "iterate_map": "M6", "bounded_walk": "M6",
+             "count_digit_in_list": "M5", "crt_candidates": "M5", "choose_sum_divisible": "M5"}
 
-def h_div_or(rng):
-    N = rng.choice([60, 90, 120]); a, b = sorted(rng.sample([3, 4, 5, 6], 2))
-    ans = N // a + N // b - N // lcm(a, b)
-    return {"stem": f"How many whole numbers from 1 to {N} are multiples of {a} or {b} (or both)?", "answer": ans,
-            "distractors": [N // a + N // b, ans + 2, ans - 2],
-            "method": f"{N}/{a} + {N}/{b} - {N}/{lcm(a,b)} = {ans} (subtract the double-counted multiples of {lcm(a,b)}).",
-            "mech": "inclusion-exclusion"}
 
-def h_paths(rng):
-    m, n = rng.randint(2, 4), rng.randint(2, 4)
-    ans = comb(m + n, m)
-    return {"stem": f"On a grid you move from one corner to the opposite corner of a {m} by {n} block of streets, "
-                    f"always going right or up. How many shortest paths are there?", "answer": ans,
-            "distractors": [m * n, (m + n) * 2, ans + m], "method": f"Choose which {m} of the {m+n} steps go one way: "
-            f"C({m+n},{m}) = {ans}.", "mech": "lattice paths"}
+def _hard_item(rng, typ, params):
+    mech = TYPE_MECH[typ]
+    try:
+        if not verify.is_unique(mech, params):        # no/duplicate solution -> reject
+            return None
+        ans = verify.MODULES[mech].solve(params)
+    except (StopIteration, ValueError, AssertionError, ZeroDivisionError):
+        return None
+    if ans is None:
+        return None
+    return {"stem": generate.STEMS[typ](params), "answer": ans, "mech": mech,
+            "method": generate.METHOD[mech][0], "trap": generate.METHOD[mech][1],
+            "fixed_choices": params["candidates"] if typ == "crt_candidates" else None}
 
-def h_coins(rng):
-    amount = rng.randint(7, 13); coins = [1, 2, 5]
-    ways = [0] * (amount + 1); ways[0] = 1
-    for c in coins:
-        for v in range(c, amount + 1):
-            ways[v] += ways[v - c]
-    ans = ways[amount]
-    return {"stem": f"Using any number of 1c, 2c and 5c coins, in how many ways can you make {amount} cents?",
-            "answer": ans, "distractors": [ans + 2, ans - 2, amount],
-            "method": f"Count combinations by how many 5c then 2c coins are used: {ans} ways.", "mech": "coin counting"}
 
-def h_handshake(rng):
-    n = rng.randint(6, 9); ans = comb(n, 2)
-    return {"stem": f"{n} people are at a party and each person shakes hands once with every other person. "
-                    f"How many handshakes happen?", "answer": ans,
-            "distractors": [n * n, n * (n - 1), n * (n + 1) // 2],
-            "method": f"Each pair shakes once: C({n},2) = {n}x{n-1}/2 = {ans}.", "mech": "pair counting"}
+def _draw_hard(rng, ctor, int_only=False, tries=300):
+    for _ in range(tries):
+        typ, params = ctor(rng)
+        it = _hard_item(rng, typ, params)
+        if it is None or (int_only and not 0 <= it["answer"] <= 999):
+            continue
+        return it
+    raise RuntimeError(f"hard family {ctor.__name__} produced nothing valid")
 
-def h_squares(rng):
-    n = rng.choice([3, 4]); ans = sum(k * k for k in range(1, n + 1))
-    return {"stem": f"How many squares of all sizes are there in a {n} by {n} grid of small squares?", "answer": ans,
-            "distractors": [n * n, n * n * n, n * n + 1],
-            "method": f"Count by size: {' + '.join(f'{k}x{k}:{(n-k+1)**2}' for k in range(1, n+1))} = {ans}.",
-            "mech": "counting squares"}
 
-HARD = [h_digitsum, h_div_or, h_paths, h_coins, h_handshake, h_squares]
+# ---- hard families for the multiple-choice discriminators (Q21-25) ----
+def hm_constrained(rng):
+    parity = rng.choice(["even", "odd"])
+    mult = rng.choice([3, 9]) if parity == "odd" else rng.choice([4, 6])  # keep it satisfiable
+    return "constrained_number", {"type": "constrained_number", "range": [100, 999],
+            "want": "smallest", "predicates": [parity, ["multiple_of", mult],
+            ["contains_digit", rng.choice([3, 5, 7, 9])], ["no_digit", 0], "all_distinct"]}
+
+def hm_crt(rng):
+    return "crt_candidates", generate._p_crt_candidates(rng, None)
+
+def hm_op_order(rng):
+    return "op_order", generate._p_op_order(rng, None)
+
+def hm_fraction(rng):
+    return "fraction_remainder", generate._p_fraction_remainder(rng, None)
+
+def hm_choose_sum(rng):
+    start, nn = rng.choice([1, 2]), rng.choice([10, 11, 12])
+    return "choose_sum_divisible", {"type": "choose_sum_divisible",
+            "set": list(range(start, start + nn)), "choose": 3, "divisor": rng.choice([3, 4])}
+
+HARD_MC = [hm_constrained, hm_crt, hm_op_order, hm_fraction, hm_choose_sum]
+
+
+# ---- hardest families for the integer-answer tail (Q26-30) ----
+def hi_digit_extremes(rng):
+    return "digit_extremes", {"type": "digit_extremes", "digits": rng.sample(range(1, 10), 6),
+            "groups": [3, 3]}
+
+def hi_count_digit(rng):
+    v = rng.choice([3, 4, 6])
+    return "count_digit_in_list", {"type": "count_digit_in_list", "start": v, "step": v,
+            "count": rng.choice([250, 300]), "digit": rng.choice([0, 1, 2])}
+
+def hi_iterate(rng):
+    return "iterate_map", {"type": "iterate_map", "map": "digit_square_sum",
+            "seed": rng.randint(1000, 9999), "index": rng.randint(5000, 9000)}
+
+def hi_bounded(rng):
+    b, L = rng.choice([1, 2]), rng.choice([10, 12, 14])
+    return "bounded_walk", {"type": "bounded_walk", "length": L, "low": -b, "high": b, "start": 0}
+
+def hi_choose_sum(rng):
+    start, nn = rng.choice([1, 2, 3]), rng.choice([13, 14, 15, 16])
+    return "choose_sum_divisible", {"type": "choose_sum_divisible",
+            "set": list(range(start, start + nn)), "choose": 3, "divisor": rng.choice([3, 4])}
+
+HARD_INT = [hi_digit_extremes, hi_count_digit, hi_iterate, hi_bounded, hi_choose_sum]
 
 
 # --------------------------------------------------------------- assembly
@@ -288,36 +319,38 @@ def build_paper(seed=0):
     items = []
     n = 0
 
-    def add_mc(fam, marks):
+    def add_mc(stem, answer, distractors, marks, mech, method, fixed=None):
         nonlocal n
         n += 1
+        if fixed:
+            opts = list(fixed)
+            rng.shuffle(opts)
+            labels = "ABCDE"
+            choices = [(labels[i], opts[i]) for i in range(len(opts))]
+            correct = labels[opts.index(answer)]
+        else:
+            choices, correct = _choices(rng, answer, distractors)
+        assert sum(1 for _, v in choices if v == answer) == 1, f"ambiguous key Q{n}"
+        items.append({"n": n, "marks": marks, "section": "MC", "stem": stem,
+                      "choices": choices, "correct": correct, "answer": answer,
+                      "method": method, "mech": mech})
+
+    for fam in rng.sample(EASY, 10):                  # Q1-10 warm-up
         q = fam(rng)
-        choices, correct = _choices(rng, q["answer"], q.get("distractors", ()))
-        assert sum(1 for _, v in choices if v == q["answer"]) == 1, f"ambiguous key Q{n}"
-        items.append({"n": n, "marks": marks, "section": "MC", "stem": q["stem"],
-                      "choices": choices, "correct": correct, "answer": q["answer"],
-                      "method": q["method"], "mech": q["mech"]})
-
-    for fam in rng.sample(EASY, 10):
-        add_mc(fam, 3)
-    for fam in rng.sample(MEDIUM, 10):
-        add_mc(fam, 4)
-    for fam in rng.sample(HARD, 5):
-        add_mc(fam, 5)
-
-    for anchor in TAIL_ANCHORS:                       # Q26-30, integer answers, verified twins
-        it = None
-        for s in range(seed, seed + 80):
-            it = generate.make_item(anchor, seed=s)
-            if it is not None:
-                break
-        if it is None:
-            raise RuntimeError(f"no verified twin for {anchor}")
+        add_mc(q["stem"], q["answer"], q.get("distractors", ()), 3, q["mech"], q["method"])
+    for fam in rng.sample(MEDIUM, 10):                # Q11-20 medium
+        q = fam(rng)
+        add_mc(q["stem"], q["answer"], q.get("distractors", ()), 4, q["mech"], q["method"])
+    for ctor in rng.sample(HARD_MC, 5):               # Q21-25 hard, verified, multiple choice
+        it = _draw_hard(rng, ctor)
+        add_mc(it["stem"], it["answer"], (), 5, it["mech"], it["method"], it["fixed_choices"])
+    for marks, ctor in zip([6, 7, 8, 9, 10], rng.sample(HARD_INT, 5)):  # Q26-30 hardest, integer
+        it = _draw_hard(rng, ctor, int_only=True)
         n += 1
-        items.append({"n": n, "marks": it["marks"], "section": "INT", "stem": it["stem"],
+        items.append({"n": n, "marks": marks, "section": "INT", "stem": it["stem"],
                       "choices": None, "correct": None, "answer": it["answer"],
-                      "method": it["method_star"], "trap": it["trap"], "mech": it["mechanism"],
-                      "anchor": it["anchor"]})
+                      "method": it["method"], "trap": it["trap"], "mech": it["mech"],
+                      "anchor": "generated"})
     return items
 
 
