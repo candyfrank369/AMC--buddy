@@ -1,0 +1,110 @@
+[
+  {
+    "mechanism": "M5",
+    "anchor": "2024 Q24",
+    "marks": 5,
+    "type": "crt_candidates",
+    "params": "{'type': 'crt_candidates', 'full': 60, 'mods': [[4, 2], [5, 4]], 'candidates': [4, 5, 6, 19, 23]}",
+    "stem": "A box held 60 counters but some were lost. When the rest are shared equally among 4 people, 2 are left over; shared among 5 people, 4 are left over. Which of these could be the number lost: 4, 5, 6, 19, 23?",
+    "answer": 6,
+    "difficulty": 5,
+    "band": [
+      5,
+      5
+    ],
+    "unique": true,
+    "method_star": "Bucket by remainder (or build an ordered table): count all-from-one-bucket PLUS one-from-each \u2014 no missing or double counts.",
+    "trap": "forgetting a case, or counting ordered when it should be unordered.",
+    "focus": "constraint elimination (M5)"
+  },
+  {
+    "mechanism": "M2",
+    "anchor": "2025 Q26",
+    "marks": 6,
+    "type": "constrained_number",
+    "params": "{'type': 'constrained_number', 'range': [100, 999], 'want': 'smallest', 'predicates': ['even', ['multiple_of', 6], ['contains_digit', 2], ['no_digit', 0], 'all_distinct']}",
+    "stem": "What is the smallest three-digit number that is even, a multiple of 6, contains the digit 2, has no digit 0, and has all different digits?",
+    "answer": 126,
+    "difficulty": 5,
+    "band": [
+      2,
+      5
+    ],
+    "unique": true,
+    "method_star": "Apply the constraints in order of pruning power (divisibility / parity first) while keeping the leading digit as small as possible.",
+    "trap": "applying the weak constraints first, or dropping the distinct / no-zero filters.",
+    "focus": "cross-number / digit-property (M2)"
+  },
+  {
+    "mechanism": "M2",
+    "anchor": "2025 Q26",
+    "marks": 6,
+    "type": "constrained_number",
+    "params": "{'type': 'constrained_number', 'range': [100, 999], 'want': 'smallest', 'predicates': ['even', ['multiple_of', 6], ['contains_digit', 3], ['no_digit', 0], 'all_distinct']}",
+    "stem": "What is the smallest three-digit number that is even, a multiple of 6, contains the digit 3, has no digit 0, and has all different digits?",
+    "answer": 132,
+    "difficulty": 5,
+    "band": [
+      2,
+      5
+    ],
+    "unique": true,
+    "method_star": "Apply the constraints in order of pruning power (divisibility / parity first) while keeping the leading digit as small as possible.",
+    "trap": "applying the weak constraints first, or dropping the distinct / no-zero filters.",
+    "focus": "cross-number / digit-property (M2)"
+  },
+  {
+    "mechanism": "M2",
+    "anchor": "2025 Q26",
+    "marks": 6,
+    "type": "constrained_number",
+    "params": "{'type': 'constrained_number', 'range': [100, 999], 'want': 'smallest', 'predicates': ['even', ['multiple_of', 4], ['contains_digit', 5], ['no_digit', 0], 'all_distinct']}",
+    "stem": "What is the smallest three-digit number that is even, a multiple of 4, contains the digit 5, has no digit 0, and has all different digits?",
+    "answer": 152,
+    "difficulty": 5,
+    "band": [
+      2,
+      5
+    ],
+    "unique": true,
+    "method_star": "Apply the constraints in order of pruning power (divisibility / parity first) while keeping the leading digit as small as possible.",
+    "trap": "applying the weak constraints first, or dropping the distinct / no-zero filters.",
+    "focus": "cross-number / digit-property (M2)"
+  },
+  {
+    "mechanism": "M5",
+    "anchor": "2013 Q27",
+    "marks": 7,
+    "type": "choose_sum_divisible",
+    "params": "{'type': 'choose_sum_divisible', 'set': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], 'choose': 3, 'divisor': 4}",
+    "stem": "In how many ways can you choose 3 different numbers from 2 to 13 so that their sum is a multiple of 4?",
+    "answer": 55,
+    "difficulty": 12,
+    "band": [
+      5,
+      12
+    ],
+    "unique": true,
+    "method_star": "Bucket by remainder (or build an ordered table): count all-from-one-bucket PLUS one-from-each \u2014 no missing or double counts.",
+    "trap": "forgetting a case, or counting ordered when it should be unordered.",
+    "focus": "organised enumeration (M5)"
+  },
+  {
+    "mechanism": "M5",
+    "anchor": "2013 Q27",
+    "marks": 7,
+    "type": "choose_sum_divisible",
+    "params": "{'type': 'choose_sum_divisible', 'set': [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 'choose': 3, 'divisor': 2}",
+    "stem": "In how many ways can you choose 3 different numbers from 4 to 15 so that their sum is a multiple of 2?",
+    "answer": 110,
+    "difficulty": 12,
+    "band": [
+      5,
+      12
+    ],
+    "unique": true,
+    "method_star": "Bucket by remainder (or build an ordered table): count all-from-one-bucket PLUS one-from-each \u2014 no missing or double counts.",
+    "trap": "forgetting a case, or counting ordered when it should be unordered.",
+    "focus": "organised enumeration (M5)"
+  }
+]
