@@ -1,0 +1,92 @@
+[
+  {
+    "mechanism": "M8",
+    "anchor": "2018 Q24",
+    "marks": 5,
+    "type": "route_inspection",
+    "stem": "A rectangular field is 16 km by 12 km. Fences run along all four sides and along both diagonals, which cross at the centre (each diagonal is 20 km long). A farmer starts at one corner, walks along every fence at least once, and returns to that same corner. What is the shortest total distance, in kilometres, she can walk?",
+    "answer": 120,
+    "difficulty": 8,
+    "band": [
+      8,
+      8
+    ],
+    "unique": true,
+    "method_star": "Count how many fences meet at each junction: if any has an ODD number you cannot do it without repeats. Pair up the odd junctions and re-walk only the cheapest connecting fences; answer = total fence length + that minimum extra.",
+    "trap": "just adding up all the fences and forgetting you must double back on the odd junctions.",
+    "fence": 96,
+    "extra": 24
+  },
+  {
+    "mechanism": "M8",
+    "anchor": "2018 Q24",
+    "marks": 5,
+    "type": "route_inspection",
+    "stem": "A rectangular field is 24 km by 10 km. Fences run along all four sides and along both diagonals, which cross at the centre (each diagonal is 26 km long). A farmer starts at one corner, walks along every fence at least once, and returns to that same corner. What is the shortest total distance, in kilometres, she can walk?",
+    "answer": 140,
+    "difficulty": 8,
+    "band": [
+      8,
+      8
+    ],
+    "unique": true,
+    "method_star": "Count how many fences meet at each junction: if any has an ODD number you cannot do it without repeats. Pair up the odd junctions and re-walk only the cheapest connecting fences; answer = total fence length + that minimum extra.",
+    "trap": "just adding up all the fences and forgetting you must double back on the odd junctions.",
+    "fence": 120,
+    "extra": 20
+  },
+  {
+    "mechanism": "M8",
+    "anchor": "2018 Q24",
+    "marks": 5,
+    "type": "route_inspection",
+    "stem": "A rectangular field is 18 km by 24 km. Fences run along all four sides and along both diagonals, which cross at the centre (each diagonal is 30 km long). A farmer starts at one corner, walks along every fence at least once, and returns to that same corner. What is the shortest total distance, in kilometres, she can walk?",
+    "answer": 180,
+    "difficulty": 8,
+    "band": [
+      8,
+      8
+    ],
+    "unique": true,
+    "method_star": "Count how many fences meet at each junction: if any has an ODD number you cannot do it without repeats. Pair up the odd junctions and re-walk only the cheapest connecting fences; answer = total fence length + that minimum extra.",
+    "trap": "just adding up all the fences and forgetting you must double back on the odd junctions.",
+    "fence": 144,
+    "extra": 36
+  },
+  {
+    "mechanism": "M8",
+    "anchor": "2018 Q24",
+    "marks": 5,
+    "type": "route_inspection",
+    "stem": "A rectangular field is 30 km by 16 km. Fences run along all four sides and along both diagonals, which cross at the centre (each diagonal is 34 km long). A farmer starts at one corner, walks along every fence at least once, and returns to that same corner. What is the shortest total distance, in kilometres, she can walk?",
+    "answer": 192,
+    "difficulty": 8,
+    "band": [
+      8,
+      8
+    ],
+    "unique": true,
+    "method_star": "Count how many fences meet at each junction: if any has an ODD number you cannot do it without repeats. Pair up the odd junctions and re-walk only the cheapest connecting fences; answer = total fence length + that minimum extra.",
+    "trap": "just adding up all the fences and forgetting you must double back on the odd junctions.",
+    "fence": 160,
+    "extra": 32
+  },
+  {
+    "mechanism": "M8",
+    "anchor": "2018 Q24",
+    "marks": 5,
+    "type": "route_inspection",
+    "stem": "A rectangular field is 40 km by 30 km. Fences run along all four sides and along both diagonals, which cross at the centre (each diagonal is 50 km long). A farmer starts at one corner, walks along every fence at least once, and returns to that same corner. What is the shortest total distance, in kilometres, she can walk?",
+    "answer": 300,
+    "difficulty": 8,
+    "band": [
+      8,
+      8
+    ],
+    "unique": true,
+    "method_star": "Count how many fences meet at each junction: if any has an ODD number you cannot do it without repeats. Pair up the odd junctions and re-walk only the cheapest connecting fences; answer = total fence length + that minimum extra.",
+    "trap": "just adding up all the fences and forgetting you must double back on the odd junctions.",
+    "fence": 240,
+    "extra": 60
+  }
+]

@@ -12,10 +12,11 @@ import json
 import os
 
 from tutor.mechanisms import (m1_place_value as m1, m2_constraints as m2, m3_op_order as m3,
-                              m4_backwards as m4, m5_enumeration as m5, m6_sequences as m6)
+                              m4_backwards as m4, m5_enumeration as m5, m6_sequences as m6,
+                              m8_logic as m8)
 from tutor.anchors import REGISTRY
 
-MODULES = {"M1": m1, "M2": m2, "M3": m3, "M4": m4, "M5": m5, "M6": m6}
+MODULES = {"M1": m1, "M2": m2, "M3": m3, "M4": m4, "M5": m5, "M6": m6, "M8": m8}
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _QJSONL = os.path.join(_ROOT, "content", "questions.jsonl")

@@ -62,11 +62,12 @@ def _constrained_number(p):
     want = p["want"]
     hits = (n for n in range(lo, hi + 1) if all(_pred(pr, n) for pr in preds))
     if want == "smallest":
-        return next(hits)
+        return next(hits, None)              # None = no satisfier (verify rejects; never crash)
     if want == "count":
         return sum(1 for _ in hits)
     if want == "largest":
-        return max(hits)
+        seq = list(hits)
+        return max(seq) if seq else None
     raise ValueError(want)
 
 

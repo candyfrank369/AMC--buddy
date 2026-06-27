@@ -34,7 +34,8 @@ def _p_digit_extremes(rng, base):                      # M1  (twin of 2024 Q26)
 def _p_constrained_number(rng, base):                  # M2  (twin of 2025 Q26)
     mult = rng.choice([3, 4, 6, 9])
     contain = rng.choice([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    parity = rng.choice(["even", "odd"])
+    # don't contradict an even multiple (4/6 force even); parity is only free when mult is odd
+    parity = "even" if mult % 2 == 0 else rng.choice(["even", "odd"])
     return {"type": "constrained_number", "range": [100, 999], "want": "smallest",
             "predicates": [parity, ["multiple_of", mult], ["contains_digit", contain],
                            ["no_digit", 0], "all_distinct"]}
@@ -96,6 +97,36 @@ def _p_choose_sum_divisible(rng, base):                # M5  (twin of 2013 Q27)
             "choose": 3, "divisor": rng.choice([2, 3, 4])}
 
 
+_ROUTE_TRIPLES = [(24, 10, 13), (16, 12, 10), (40, 30, 25), (30, 16, 17), (18, 24, 15)]  # (a,b,half); base 8,6,5 excluded
+
+
+def _p_route_inspection(rng, base):                   # M8  (twin of 2018 Q24)
+    a, b, half = rng.choice(_ROUTE_TRIPLES)           # same topology (8 edges) -> same difficulty band
+    return {"type": "route_inspection", "objective": "total",
+            "nodes": ["H", "O", "M", "E", "X"],
+            "edges": [["H", "O", a], ["M", "E", a], ["E", "H", b], ["O", "M", b],
+                      ["H", "X", half], ["X", "M", half], ["E", "X", half], ["X", "O", half]],
+            "_dims": [a, b, 2 * half]}
+
+
+_CUBE_DIGITSETS = [[1, 2, 3], [0, 1, 3], [0, 2, 3], [1, 2, 4], [2, 3, 4]]
+
+
+def _p_cube_opposite_sum(rng, base):                  # M8  (twin of 2018 Q27)
+    from itertools import product as _prod
+    digits = rng.choice(_CUBE_DIGITSETS)
+    V = sorted(int("".join(map(str, c))) for c in _prod(digits, repeat=3) if c[0] != 0)
+    sV = set(V)
+    for _ in range(60):                               # build visibles guaranteed to admit a total
+        T = rng.randint(2 * min(V), 2 * max(V))
+        pairs = [(x, T - x) for x in V if x < T - x and (T - x) in sV]
+        if len(pairs) >= 3:
+            vis = sorted(x for x, _ in rng.sample(pairs, 3))
+            if len(set(vis)) == 3:
+                return {"type": "cube_opposite_sum", "digits": digits, "length": 3, "visible": vis}
+    return {"type": "cube_opposite_sum", "digits": digits, "length": 3, "visible": sorted(rng.sample(V, 3))}
+
+
 PROPOSERS = {
     "digit_extremes": _p_digit_extremes,
     "constrained_number": _p_constrained_number,
@@ -106,6 +137,8 @@ PROPOSERS = {
     "count_digit_in_list": _p_count_digit_in_list,
     "crt_candidates": _p_crt_candidates,
     "choose_sum_divisible": _p_choose_sum_divisible,
+    "route_inspection": _p_route_inspection,
+    "cube_opposite_sum": _p_cube_opposite_sum,
 }
 
 
@@ -198,6 +231,23 @@ def _s_choose_sum_divisible(p):
             f"{s[0]} to {s[-1]} so that their sum is a multiple of {p['divisor']}?")
 
 
+def _s_route_inspection(p):
+    a, b, hyp = p["_dims"]
+    return (f"A rectangular field is {a} km by {b} km. Fences run along all four sides and along "
+            f"both diagonals, which cross at the centre (each diagonal is {hyp} km long). A farmer "
+            f"starts at one corner, walks along every fence at least once, and returns to that same "
+            f"corner. What is the shortest total distance, in kilometres, she can walk?")
+
+
+def _s_cube_opposite_sum(p):
+    ds = ", ".join(map(str, p["digits"]))
+    v = p["visible"]
+    return (f"Using only the digits {ds}, each face of a cube shows a different {p['length']}-digit "
+            f"number. The three faces meeting at one corner show {v[0]}, {v[1]} and {v[2]}. The two "
+            f"numbers on each pair of opposite faces add to the same total. What is the largest that "
+            f"this total could be?")
+
+
 STEMS = {
     "digit_extremes": _s_digit_extremes,
     "constrained_number": _s_constrained_number,
@@ -208,6 +258,8 @@ STEMS = {
     "count_digit_in_list": _s_count_digit_in_list,
     "crt_candidates": _s_crt_candidates,
     "choose_sum_divisible": _s_choose_sum_divisible,
+    "route_inspection": _s_route_inspection,
+    "cube_opposite_sum": _s_cube_opposite_sum,
 }
 
 
@@ -228,6 +280,20 @@ METHOD = {
            "forgetting a case, or counting ordered when it should be unordered."),
     "M6": ("Find the cycle, then index the far-out term by its period (don't grind out every "
            "term).", "an off-by-one in where the cycle starts, or not noticing it repeats."),
+    "M8": ("Count how many fences meet at each junction: if any has an ODD number you cannot do "
+           "it without repeats. Pair up the odd junctions and re-walk only the cheapest connecting "
+           "fences; answer = total fence length + that minimum extra.",
+           "just adding up all the fences and forgetting you must double back on the odd junctions."),
+}
+
+# per-TYPE overrides (one mechanism can hold several families with different methods/traps)
+METHOD_BY_TYPE = {
+    "cube_opposite_sum": (
+        "List the allowed numbers; for each candidate total T, check whether all three hidden "
+        "faces (T minus each visible number) are themselves allowed and all different. Take the "
+        "largest T that works.",
+        "assuming the three visible faces can be opposite each other — they meet at a corner, so "
+        "they are adjacent; their opposites are the three hidden faces."),
 }
 
 
@@ -247,11 +313,12 @@ def make_item(anchor_key, seed=0, max_tries=25):
         v = verify.verify(mech, params, marks, _BANDS)
         # a genuine twin: passes the gate AND is not just the anchor's own answer re-skinned
         if v["ok"] and v["answer"] != anchor_answer:
+            m_star, m_trap = METHOD_BY_TYPE.get(typ, METHOD[mech])
             return {"mechanism": mech, "anchor": f"{anchor_key[0]} Q{anchor_key[1]}",
                     "marks": marks, "type": typ, "params": params,
                     "stem": STEMS[typ](params), "answer": v["answer"],
                     "difficulty": v["difficulty"], "band": v["band"], "unique": v["unique"],
-                    "method_star": METHOD[mech][0], "trap": METHOD[mech][1]}
+                    "method_star": m_star, "trap": m_trap}
     return None
 
 

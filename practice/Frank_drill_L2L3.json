@@ -1,0 +1,74 @@
+[
+  {
+    "level": "L2",
+    "topic": "cross-number / digit-property",
+    "marks": 7,
+    "lineage": "real 2025 Q26 (M2) + hidden condition",
+    "stem": "What is the smallest three-digit number with all of these properties: divisible by 3; contains the digit 6; has no digit 0; has all different digits; has a digit sum divisible by 5?",
+    "answer": 168,
+    "difficulty": 5,
+    "ceiling": 5,
+    "trap": "a solver who skips “has a digit sum divisible by 5” stops at 126 — the planted decoy.",
+    "method": "Apply the strong filters first (divisibility, no-zero, distinct), then check the SUBTLE last condition before you commit — don't stop at the first multiple you find."
+  },
+  {
+    "level": "L2",
+    "topic": "cross-number / digit-property",
+    "marks": 7,
+    "lineage": "real 2025 Q26 (M2) + hidden condition",
+    "stem": "What is the smallest three-digit number with all of these properties: divisible by 6; contains the digit 5; has no digit 0; has all different digits; has exactly 1 odd digit?",
+    "answer": 258,
+    "difficulty": 5,
+    "ceiling": 5,
+    "trap": "a solver who skips “has exactly 1 odd digit” stops at 156 — the planted decoy.",
+    "method": "Apply the strong filters first (divisibility, no-zero, distinct), then check the SUBTLE last condition before you commit — don't stop at the first multiple you find."
+  },
+  {
+    "level": "L3",
+    "topic": "organised counting (residue classes)",
+    "marks": 7,
+    "lineage": "scaled twin of 2013 Q27 (M5)",
+    "stem": "In how many ways can you choose 3 different numbers from 3 to 22 so that their sum is a multiple of 3?",
+    "answer": 384,
+    "difficulty": 20,
+    "ceiling": 12,
+    "why": "C(20,3) = 1140 triples — impossible to list. Sort the numbers into remainder buckets mod 3 and count the bucket combinations.",
+    "method": "Bucket all numbers by remainder mod 3; the valid triples are 'all-from-one-bucket' + the matching cross-bucket combinations."
+  },
+  {
+    "level": "L3",
+    "topic": "organised counting (residue classes)",
+    "marks": 7,
+    "lineage": "scaled twin of 2013 Q27 (M5)",
+    "stem": "In how many ways can you choose 3 different numbers from 3 to 26 so that their sum is a multiple of 4?",
+    "answer": 506,
+    "difficulty": 24,
+    "ceiling": 12,
+    "why": "C(24,3) = 2024 triples — impossible to list. Sort the numbers into remainder buckets mod 4 and count the bucket combinations.",
+    "method": "Bucket all numbers by remainder mod 4; the valid triples are 'all-from-one-bucket' + the matching cross-bucket combinations."
+  },
+  {
+    "level": "L3",
+    "topic": "cross-number / digit-property",
+    "marks": 8,
+    "lineage": "scaled twin of 2025 Q26 (M2)",
+    "stem": "How many four-digit numbers have all of these properties: divisible by 13; has all different digits; has no digit 0; has exactly 3 odd digits; has a digit sum divisible by 3; contains the digit 2?",
+    "answer": 4,
+    "difficulty": 6,
+    "ceiling": 5,
+    "why": "~9000 four-digit candidates — you cannot list them. Count structurally: fix the digit-sum/parity buckets and use divisibility.",
+    "method": "Don't hunt for examples — partition by the binding condition (digit sum / parity) and count each class."
+  },
+  {
+    "level": "L3",
+    "topic": "organised counting (digit positions)",
+    "marks": 8,
+    "lineage": "scaled twin of 2024 Q28 (M5)",
+    "stem": "You write the 250 numbers 3, 6, 9, ... up to 750. How many times do you write the digit '0'?",
+    "answer": 48,
+    "difficulty": 250,
+    "ceiling": "(n/a)",
+    "why": "250 terms up to 750 — you can't write them out. Count the digit '0' one place-column at a time (units, tens, hundreds).",
+    "method": "Go place-column by place-column: count how often the digit appears in the units, then tens, then hundreds across the whole list."
+  }
+]

@@ -106,6 +106,15 @@ REGISTRY = {
     (2024, 29): ("M6", {"type": "iterate_map", "map": "digit_square_sum", "seed": 2024, "index": 2024}),
     (2024, 30): ("M6", {"type": "stepping_stones", "n": 12}),
     (2025, 20): ("M6", {"type": "repeating_digit_sum", "digits": [2, 0, 2, 5], "target": 2025}),
+
+    # ---- M8 (route inspection / graph) ----  answer = shortest closed route over all fences
+    (2018, 24): ("M8", {"type": "route_inspection", "objective": "total",
+                         "nodes": ["H", "O", "M", "E", "X"],
+                         "edges": [["H", "O", 8], ["M", "E", 8], ["E", "H", 6], ["O", "M", 6],
+                                   ["H", "X", 5], ["X", "M", 5], ["E", "X", 5], ["X", "O", 5]],
+                         "_dims": [8, 6, 10]}),    # 8x6 field + both diagonals (=10) -> 48 + 12 = 60
+    (2018, 27): ("M8", {"type": "cube_opposite_sum", "digits": [0, 1, 2], "length": 3,
+                        "visible": [220, 121, 201]}),    # -> 321
 }
 
 # Deliberately not reproduced (answer-key-only source, figure/construction rule unknown):
