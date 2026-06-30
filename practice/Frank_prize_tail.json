@@ -1,0 +1,62 @@
+[
+  {
+    "mech": "M2 · stacked-constraint number",
+    "stem": "What is the smallest three-digit number with all of these properties: divisible by 6; contains the digit 3; has no digit 0; has all different digits; has exactly 1 odd digit?",
+    "answer": 234,
+    "lineage": "generated twin of 2025 Q26",
+    "source": "generated",
+    "method": "Apply the strong filters first (divisibility, no-zero, all-different), THEN check the subtle last condition before you commit — don't stop at the first multiple you find.",
+    "trap": "a solver who skips “has exactly 1 odd digit” stops at 132 — the planted decoy (a real answer to a weaker question).",
+    "qno": 26,
+    "marks": 6,
+    "has_figure": false
+  },
+  {
+    "mech": "M5 · organised counting (residue mod)",
+    "stem": "In how many ways can you choose 3 different numbers from 2 to 22 so that their sum is a multiple of 3?",
+    "answer": 448,
+    "lineage": "generated twin of 2013 Q27",
+    "source": "generated",
+    "method": "Bucket every number by remainder mod 3; valid triples are 'all three from one bucket' PLUS the matching one-from-each cross-bucket combinations — add the C(·,3) and product counts.",
+    "trap": "C(21,3) = 1330 triples — listing them is impossible in time, and 'choose' is unordered so (a,b,c) must not be recounted as (b,a,c).",
+    "qno": 27,
+    "marks": 7,
+    "has_figure": false
+  },
+  {
+    "mech": "M6 · iterate a map → find the cycle",
+    "stem": "Start with the number 8665. At each step replace the number with the sum of the squares of its digits (for example 24 -> 2^2+4^2 = 20). What is the 3996th number in this list?",
+    "answer": 37,
+    "lineage": "generated twin of 2024 Q29",
+    "source": "generated",
+    "method": "Iterate until the numbers REPEAT, then you have a cycle. Find the cycle length L and where it starts; the 3996th term = step into the cycle by (3996 - start) mod L. Never iterate 3996 times.",
+    "trap": "an off-by-one in where the cycle starts, or not noticing it repeats.",
+    "qno": 28,
+    "marks": 8,
+    "has_figure": false
+  },
+  {
+    "mech": "M7 · area dissection (exact figure)",
+    "stem": "ABCD is a rectangle measuring 8 by 10 (area 80). M is the midpoint of side BC and N is the midpoint of side DC. M and N are each joined to A and to each other. What is the area of the shaded triangle AMN?",
+    "answer": 30,
+    "lineage": "generated twin of 2024 Q23",
+    "source": "figure (coordinate-exact)",
+    "method": "Don't trust the not-to-scale picture. Put the rectangle on a grid and subtract the THREE corner right-triangles from the whole rectangle — no area formula needed. (Closed form here is 3×W×H/8.)",
+    "trap": "Reading lengths off the drawing instead of the stated dimensions; the figure is deliberately not to scale.",
+    "qno": 29,
+    "marks": 9,
+    "has_figure": true
+  },
+  {
+    "mech": "M8 · cube opposite-faces invariant",
+    "stem": "Using only the digits 1, 2, 4, each face of a cube shows a different 3-digit number. The three faces meeting at one corner show 214, 222 and 224. The two numbers on each pair of opposite faces add to the same total. What is the largest that this total could be?",
+    "answer": 636,
+    "lineage": "generated twin of 2018 Q27",
+    "source": "generated",
+    "method": "The invariant: all three opposite-face pairs share ONE common sum S. The three shown faces meet at a corner so they are mutually NON-opposite — their three partners are the remaining numbers. Pick the pairing that maximises S, then verify all three pairs really hit the same S.",
+    "trap": "assuming the three visible faces can be opposite each other — they meet at a corner, so they are adjacent; their opposites are the three hidden faces.",
+    "qno": 30,
+    "marks": 10,
+    "has_figure": false
+  }
+]

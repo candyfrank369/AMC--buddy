@@ -1,0 +1,67 @@
+[
+  {
+    "level": "L2",
+    "topic": "cross-number / digit-property",
+    "marks": 7,
+    "lineage": "real 2025 Q26 (M2) + hidden condition",
+    "stem": "What is the smallest three-digit number with all of these properties: divisible by 6; contains the digit 3; has no digit 0; has all different digits; has exactly 1 odd digit?",
+    "answer": 234,
+    "difficulty": 5,
+    "ceiling": 5,
+    "trap": "a solver who skips “has exactly 1 odd digit” stops at 132 — the planted decoy.",
+    "method": "Apply the strong filters first (divisibility, no-zero, distinct), then check the SUBTLE last condition before you commit — don't stop at the first multiple you find.",
+    "qno": 26
+  },
+  {
+    "level": "L3",
+    "topic": "organised counting (residue classes)",
+    "marks": 7,
+    "lineage": "scaled twin of 2013 Q27 (M5)",
+    "stem": "In how many ways can you choose 3 different numbers from 2 to 22 so that their sum is a multiple of 3?",
+    "answer": 448,
+    "difficulty": 21,
+    "ceiling": 12,
+    "why": "C(21,3) = 1330 triples — impossible to list. Sort the numbers into remainder buckets mod 3 and count the bucket combinations.",
+    "method": "Bucket all numbers by remainder mod 3; the valid triples are 'all-from-one-bucket' + the matching cross-bucket combinations.",
+    "qno": 27
+  },
+  {
+    "level": "L3",
+    "topic": "cross-number / digit-property",
+    "marks": 8,
+    "lineage": "scaled twin of 2025 Q26 (M2)",
+    "stem": "How many four-digit numbers have all of these properties: divisible by 12; has all different digits; has no digit 0; has exactly 2 odd digits; has a digit sum divisible by 9; contains the digit 8?",
+    "answer": 22,
+    "difficulty": 6,
+    "ceiling": 5,
+    "why": "~9000 four-digit candidates — you cannot list them. Count structurally: fix the digit-sum/parity buckets and use divisibility.",
+    "method": "Don't hunt for examples — partition by the binding condition (digit sum / parity) and count each class.",
+    "qno": 28
+  },
+  {
+    "level": "L3",
+    "topic": "organised counting (digit positions)",
+    "marks": 8,
+    "lineage": "scaled twin of 2024 Q28 (M5)",
+    "stem": "You write the 250 numbers 4, 8, 12, ... up to 1000. How many times do you write the digit '0'?",
+    "answer": 79,
+    "difficulty": 250,
+    "ceiling": "(n/a)",
+    "why": "250 terms up to 1000 — you can't write them out. Count the digit '0' one place-column at a time (units, tens, hundreds).",
+    "method": "Go place-column by place-column: count how often the digit appears in the units, then tens, then hundreds across the whole list.",
+    "qno": 29
+  },
+  {
+    "level": "L3",
+    "topic": "cross-number / digit-property",
+    "marks": 8,
+    "lineage": "scaled twin of 2025 Q26 (M2)",
+    "stem": "How many four-digit numbers have all of these properties: divisible by 13; has all different digits; has no digit 0; has exactly 2 odd digits; has a digit sum divisible by 9; contains the digit 6?",
+    "answer": 9,
+    "difficulty": 6,
+    "ceiling": 5,
+    "why": "~9000 four-digit candidates — you cannot list them. Count structurally: fix the digit-sum/parity buckets and use divisibility.",
+    "method": "Don't hunt for examples — partition by the binding condition (digit sum / parity) and count each class.",
+    "qno": 30
+  }
+]
