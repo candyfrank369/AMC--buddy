@@ -5,15 +5,19 @@ loop is fully testable today with {"text": ...}. Set OPENAI_API_KEY to switch on
 recommended models below are cheap and English-strong. Audio formats get finalised against the
 device when we wire Phase 2 (device sends 16 kHz mono PCM/WAV; tts returns mp3 base64).
 """
-import base64
+import io
 import json
+import math
 import os
+import struct
 import urllib.request
+import wave
 
 _KEY = os.environ.get("OPENAI_API_KEY")
 STT_MODEL = os.environ.get("STT_MODEL", "gpt-4o-mini-transcribe")
 TTS_MODEL = os.environ.get("TTS_MODEL", "gpt-4o-mini-tts")
 TTS_VOICE = os.environ.get("TTS_VOICE", "alloy")
+TTS_MIME = "audio/wav"          # v1: WAV out so the ESP32 plays via I2S with no decoder
 
 
 def mode():
@@ -39,14 +43,26 @@ def stt(audio_bytes):
         return json.load(r).get("text", "")
 
 
+def _tone_wav(ms=350, freq=440, rate=16000):
+    """A short valid 16 kHz mono WAV so the device-playback path is testable with no key."""
+    n = int(rate * ms / 1000)
+    buf = io.BytesIO()
+    w = wave.open(buf, "wb")
+    w.setnchannels(1); w.setsampwidth(2); w.setframerate(rate)
+    w.writeframes(b"".join(struct.pack("<h", int(2500 * math.sin(2 * math.pi * freq * i / rate)))
+                          for i in range(n)))
+    w.close()
+    return buf.getvalue()
+
+
 def tts(text):
-    """Text -> base64 mp3. Returns '' in stub mode (device just shows the expression / text)."""
+    """Text -> WAV bytes (played directly by the device). Stub returns a short tone."""
     if not _KEY or not text:
-        return ""
+        return _tone_wav()
     payload = json.dumps({"model": TTS_MODEL, "voice": TTS_VOICE, "input": text,
-                          "response_format": "mp3"}).encode()
+                          "response_format": "wav"}).encode()
     req = urllib.request.Request(
         "https://api.openai.com/v1/audio/speech", data=payload,
         headers={"Authorization": f"Bearer {_KEY}", "Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return base64.b64encode(r.read()).decode()
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read()         # raw WAV bytes, no base64

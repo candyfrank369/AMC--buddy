@@ -20,6 +20,7 @@ import os
 import sys
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import quote
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root -> import tutor.*
 from tutor import generate
@@ -63,13 +64,14 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _read_json(self):
-        n = int(self.headers.get("Content-Length", 0))
-        raw = self.rfile.read(n) if n else b""
-        try:
-            return json.loads(raw or b"{}"), raw
-        except json.JSONDecodeError:
-            return {}, raw
+    def _send_audio(self, body, headers):
+        self.send_response(200)
+        self.send_header("Content-Type", providers.TTS_MIME)
+        self.send_header("Content-Length", str(len(body)))
+        for k, v in headers.items():
+            self.send_header(k, v)
+        self.end_headers()
+        self.wfile.write(body)
 
     def log_message(self, *a):                      # quieter logs
         pass
@@ -86,19 +88,36 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(404, {"error": "not found"})
 
     def do_POST(self):
-        path = self.path.partition("?")[0]
-        data, raw = self._read_json()
+        path, _, qs = self.path.partition("?")
+        query = dict(p.split("=", 1) for p in qs.split("&") if "=" in p)
+        ctype = self.headers.get("Content-Type", "")
+        n = int(self.headers.get("Content-Length", 0) or 0)
+        raw = self.rfile.read(n) if n else b""
+        is_json = "application/json" in ctype or raw[:1] in (b"{", b"[")
+        data = {}
+        if is_json:
+            try:
+                data = json.loads(raw or b"{}")
+            except json.JSONDecodeError:
+                data = {}
+
         if path == "/api/stackchan/answer":
             return self._send(200, _mark(data.get("task_id"), data.get("answer", "")))
+
         if path == "/api/stackchan/voice":
-            # device sends audio; STT -> text -> teaching state machine -> reply (-> TTS).
-            # For testing we also accept {"text": ...} so the whole loop runs with no key/device.
-            sid = data.get("session_id", "frank")
-            text = data.get("text") or providers.stt(raw)
-            r = dialog.handle(sid, text)
-            r["heard"] = text
-            r["audio_b64"] = providers.tts(r["say"])      # "" in text-stub mode
-            return self._send(200, r)
+            # Device POSTs raw recording bytes; we transcribe IN MEMORY and never write it to disk.
+            # Tests may POST JSON {"text": ...} so the whole loop runs with no key/device.
+            sid = data.get("session_id") or self.headers.get("X-Session-Id") or query.get("session_id", "frank")
+            text = data.get("text") if is_json else providers.stt(raw)
+            r = dialog.handle(sid, text or "")
+            if query.get("format") == "json":          # testing path: inspect text, no audio
+                return self._send(200, {"heard": text, "say": r["say"], "intent": r.get("intent"),
+                                        "expression": r.get("expression"), "end": r.get("end", False)})
+            audio = providers.tts(r["say"])             # WAV bytes in the body; control info in headers
+            return self._send_audio(audio, {
+                "X-Intent": r.get("intent", ""), "X-Expression": r.get("expression", ""),
+                "X-End": "1" if r.get("end") else "0",
+                "X-Heard": quote(text or ""), "X-Say": quote(r["say"])})
         return self._send(404, {"error": "not found"})
 
 
