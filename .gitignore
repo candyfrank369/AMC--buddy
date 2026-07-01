@@ -1,2 +1,4 @@
 papers/
 __pycache__/
+.venv/
+*.pyc

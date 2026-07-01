@@ -55,6 +55,24 @@ def _tone_wav(ms=350, freq=440, rate=16000):
     return buf.getvalue()
 
 
+def _tone_pcm(ms=350, freq=440, rate=24000):
+    n = int(rate * ms / 1000)
+    return b"".join(struct.pack("<h", int(2500 * math.sin(2 * math.pi * freq * i / rate))) for i in range(n))
+
+
+def tts_pcm(text):
+    """Text -> raw PCM16 mono @24 kHz (for Opus encoding). Stub returns a tone."""
+    if not _KEY or not text:
+        return _tone_pcm()
+    payload = json.dumps({"model": TTS_MODEL, "voice": TTS_VOICE, "input": text,
+                          "response_format": "pcm"}).encode()
+    req = urllib.request.Request(
+        "https://api.openai.com/v1/audio/speech", data=payload,
+        headers={"Authorization": f"Bearer {_KEY}", "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read()          # 24 kHz 16-bit LE mono PCM
+
+
 def tts(text):
     """Text -> WAV bytes (played directly by the device). Stub returns a short tone."""
     if not _KEY or not text:

@@ -18,6 +18,7 @@ Run:  python3 -m tutor_agent.server      (from the repo root)   [PORT env overri
 import json
 import os
 import sys
+import time
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import quote
@@ -118,6 +119,23 @@ class Handler(BaseHTTPRequestHandler):
                 "X-Intent": r.get("intent", ""), "X-Expression": r.get("expression", ""),
                 "X-End": "1" if r.get("end") else "0",
                 "X-Heard": quote(text or ""), "X-Say": quote(r["say"])})
+
+        if path == "/v1/chat/completions":
+            # OpenAI-compatible LLM endpoint so xiaozhi-esp32-server's LLM slot calls OUR tutor.
+            # xiaozhi-server does STT/TTS; we just turn the transcribed text into the tutor's reply.
+            msgs = data.get("messages", [])
+            user_text = next((m.get("content", "") for m in reversed(msgs) if m.get("role") == "user"), "")
+            if isinstance(user_text, list):            # multimodal content -> take text parts
+                user_text = " ".join(p.get("text", "") for p in user_text if isinstance(p, dict))
+            sid = data.get("user") or self.headers.get("X-Session-Id") or "frank"
+            r = dialog.handle(sid, user_text)
+            return self._send(200, {
+                "id": "chatcmpl-" + uuid.uuid4().hex[:12], "object": "chat.completion",
+                "created": int(time.time()), "model": data.get("model", "amcbuddy-tutor"),
+                "choices": [{"index": 0, "finish_reason": "stop",
+                             "message": {"role": "assistant", "content": r["say"]}}],
+                "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+                "amcbuddy": {"intent": r.get("intent"), "expression": r.get("expression"), "end": r.get("end", False)}})
         return self._send(404, {"error": "not found"})
 
 
