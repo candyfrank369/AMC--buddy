@@ -31,7 +31,11 @@ import wave
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import websockets
 import opuslib_next
-from tutor_agent import dialog, providers
+from tutor_agent import dialog, providers, brain_llm
+
+# The "brain" behind the transport. BRAIN=llm -> multilingual OpenRouter orchestrator (default);
+# BRAIN=rules -> the deterministic state machine. The transport doesn't care which.
+_BRAIN = dialog.handle if os.environ.get("BRAIN") == "rules" else brain_llm.respond
 
 UP_RATE, UP_FRAME = 16000, 960      # device mic: Opus 16 kHz, 60 ms = 960 samples
 DN_RATE, DN_FRAME = 24000, 1440     # our TTS: 24 kHz, 60 ms = 1440 samples (matches OpenAI pcm)
@@ -65,7 +69,7 @@ async def _process_turn(ws, sid, pcm16):
     text = (await _run(providers.stt, _pcm_to_wav(pcm16, UP_RATE))) or ""
     if not text.strip() or text.startswith("(text-stub"):
         return
-    r = dialog.handle("frank", text)
+    r = await _run(_BRAIN, "frank", text)          # blocking LLM/tool call -> executor
     await ws.send(json.dumps({"type": "stt", "text": text, "session_id": sid}))
     await ws.send(json.dumps({"type": "llm", "emotion": EMO.get(r["expression"], "neutral"), "session_id": sid}))
     await ws.send(json.dumps({"type": "tts", "state": "start", "session_id": sid}))
